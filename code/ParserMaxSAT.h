@@ -156,7 +156,7 @@ namespace openwbo
                                  MaxSATFormula *maxsat_formula)
   {
     StreamBuffer in(input_stream);
-    parseASPifFormula(input_stream,maxsat_formula);
+    parseASPifFormula(in,maxsat_formula);
     parseMaxSAT(in, maxsat_formula);
     if (maxsat_formula->getMaximumWeight() == 1)
       maxsat_formula->setProblemType(_UNWEIGHTED_);
@@ -167,16 +167,16 @@ namespace openwbo
   }
 
   // New function to parse ASPif files
- template <class MaxSATFormula>
-static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula) {
-    StreamBuffer in(input_stream);
+ template <class B, class MaxSATFormula>
+static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
+
 
     char *rule[100];
     int rule_size = 0;
 
     for(;;) {
         skipWhitespace(in);
-        printf("start of the cycle\n");
+        
         if(*in == EOF) {
             printf("Reached EOF\n");
             break;
@@ -186,7 +186,6 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
           int token_index = 0;
 
           rule_size = 0;
-          printf("starting tokenization\n");
           // Tokenize the line
           while (*in != '\n' && *in != EOF) {
               if (*in == ' ' || *in == '\t') {
@@ -201,7 +200,7 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
               }
               ++in;
           }
-          printf("line tokenized\n");
+          
           // Handle the last token
           if (token_index > 0) {
               token[token_index] = '\0';
@@ -209,8 +208,7 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
               rule_size++;
           }
 
-          printf("Parsed a line with %d tokens\n", rule_size);
-          fflush(stdout);
+          
 
           // Process the rule if it starts with "1"
           if (rule_size > 0 && strcmp(rule[0], "1") == 0) {
@@ -225,14 +223,14 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
               int numHeadElements = atoi(rule[2]);
               char **headElements = &rule[3];
               printf("Extracted head elements\n");
-              fflush(stdout);
+              
 
               // Extract body elements
               int index = 3 + numHeadElements + 1;
               int numBodyElements = atoi(rule[index]);
               char **bodyElements = &rule[index + 1];
               printf("Extracted body elements\n");
-              fflush(stdout);
+              
 
               // Debugging output (optional)
               printf("Rule type: disjunction\n");
@@ -241,7 +239,7 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
                   printf("%s ", headElements[i]);
               }
               printf("\n");
-              fflush(stdout);
+              
 
               if (numBodyElements > 0) {
                   printf("Body: ");
@@ -251,7 +249,7 @@ static void parseASPifFormula(gzFile input_stream, MaxSATFormula *maxsat_formula
                   printf("\n");
               }
               printf("\n");
-              fflush(stdout);
+              
           }
 
           // Free memory
