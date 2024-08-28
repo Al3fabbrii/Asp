@@ -156,7 +156,7 @@ namespace openwbo
                                  MaxSATFormula *maxsat_formula)
   {
     StreamBuffer in(input_stream);
-    //parseASPifFormula(input_stream,maxsat_formula);
+    parseASPifFormula(input_stream,maxsat_formula);
     parseMaxSAT(in, maxsat_formula);
     if (maxsat_formula->getMaximumWeight() == 1)
       maxsat_formula->setProblemType(_UNWEIGHTED_);
