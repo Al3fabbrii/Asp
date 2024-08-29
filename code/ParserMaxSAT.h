@@ -215,7 +215,7 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               // Determine if the rule is disjunctive
               int isDisjunctive = strcmp(rule[1], "0") == 0;
               if (!isDisjunctive) {
-                  fprintf(stderr, "WARNING!\nChoice rule is not acceptable\n");
+                  fprintf(stderr, "ERROR!\nChoice rule is not acceptable\nChange the rule in a disjunction one\n");
                   exit(1);
               }
 
@@ -230,6 +230,24 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               int numBodyElements = atoi(rule[index]);
               char **bodyElements = &rule[index + 1];
               printf("Extracted body elements\n");
+
+              // Convert head and body elements to literals
+                vec<Lit> lits;
+                for (int i = 0; i < numHeadElements; i++) {
+                    int var = abs(atoi(headElements[i])) - 1;
+                    while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
+                    lits.push((atoi(headElements[i]) > 0) ? mkLit(var) : ~mkLit(var));
+                }
+                for (int i = 0; i < numBodyElements; i++) {
+                    int var = abs(atoi(bodyElements[i])) - 1;
+                    while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
+                    lits.push(~((atoi(bodyElements[i]) > 0) ? mkLit(var) : ~mkLit(var))); // Negate body elements
+                }
+
+                // Add the disjunction rule as a hard clause
+                maxsat_formula->addHardClause(lits);
+                printf("Added disjunction rule as a hard clause\n");
+                
               
 
               // Debugging output (optional)
@@ -265,6 +283,7 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
         maxsat_formula->setProblemType(_UNWEIGHTED_);
     else
         maxsat_formula->setProblemType(_WEIGHTED_);
+    printf("Number of hard clauses: %d\n", maxsat_formula->nHard());
     printf("Problem type: %d\n", maxsat_formula->getProblemType());
     printf("Parsing complete.\nNow exit\n");
     exit(1);
