@@ -157,7 +157,7 @@ namespace openwbo
   {
     StreamBuffer in(input_stream);
     parseASPifFormula(in,maxsat_formula);
-    parseMaxSAT(in, maxsat_formula);
+    //parseMaxSAT(in, maxsat_formula);
     if (maxsat_formula->getMaximumWeight() == 1)
       maxsat_formula->setProblemType(_UNWEIGHTED_);
     else
@@ -269,7 +269,27 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               printf("\n");
               
           }
+            else if (rule_size > 0 && strcmp(rule[0], "2") == 0) {
+            // Parse the priority (p) - can be ignored
+            int priority = atoi(rule[1]);
 
+            // Parse the number of literals (n) in the rule
+            int numLiterals = atoi(rule[2]);
+
+            // Extract literals and their weights
+            vec<Lit> minimizeLits;
+            int index = 3;
+            for (int i = 0; i < numLiterals; i++) {
+                int var = abs(atoi(rule[index])) - 1;
+                while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
+                minimizeLits.push((atoi(rule[index]) > 0) ? mkLit(var) : ~mkLit(var));
+                uint64_t weight = strtoull(rule[index + 1], NULL, 10); // Extract weight
+                maxsat_formula->addSoftClause(weight, minimizeLits); // Add as soft clause with weight
+                index += 2; // Move to the next literal
+            printf("Added minimize statement as soft clauses with specific weights: %lu\n",weight);}
+
+            
+        }
           // Free memory
           for (int i = 0; i < rule_size; i++) {
               free(rule[i]);
@@ -284,9 +304,10 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
     else
         maxsat_formula->setProblemType(_WEIGHTED_);
     printf("Number of hard clauses: %d\n", maxsat_formula->nHard());
+    printf("Number of soft clauses: %d\n",maxsat_formula->nSoft());
     printf("Problem type: %d\n", maxsat_formula->getProblemType());
-    printf("Parsing complete.\nNow exit\n");
-    exit(1);
+    printf("Parsing complete.\nNot exit anymore\n");
+    
 }
   
   //=================================================================================================

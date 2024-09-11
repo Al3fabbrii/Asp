@@ -463,7 +463,6 @@ int main(int argc, char **argv) {
 	
 	const auto clss = maxsat_formula->nSoft() + maxsat_formula->nHard();
 	const double softsFract = (double)maxsat_formula->nSoft()/(double)clss;
-	
 	if (polOptimistic && clss != 0 && optimisticMaxSoftFraction < 1. && softsFract > optimisticMaxSoftFraction) 
 	{
 		Torc::Instance()->SetPolOptimistic((bool)(polOptimistic = 0));
@@ -513,8 +512,7 @@ int main(int argc, char **argv) {
 			Torc::Instance()->SetChrono(100);
 			printf("c | best-alg-selector overriden ms_chrono to 100, since it hadn't been set by the user |\n");	
 		}
-		
-        
+		        
         // -cardinality=2 -conflicts=10000 -iterations=100 -algorithm=7
 		S = new OBV(verbosity, 2, num_conflicts, num_iterations, (bool)local); 
 		algorithm = _ALGORITHM_LSU_MRSBEAVER_;  
@@ -526,10 +524,8 @@ int main(int argc, char **argv) {
                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
                                  (int)(num_clusters));   
         algorithm = _ALGORITHM_LSU_CLUSTER_;  
-    
       }
     }
-
     if (S->getMaxSATFormula() == NULL) {
       S->loadFormula(maxsat_formula);
       if ((int)(cluster_algorithm) == 1) {
