@@ -239,6 +239,7 @@ int main(int argc, char** argv)
 	  if(msolver.getShowModel() && ret==l_True) {
 	    printf("v ");
 	    for (int i = 0; i < msolver.model.size() ; i++) {
+                printf("i valori delle variabili sono:\n");
                 assert(msolver.model[i] != l_Undef);
                 if (msolver.model[i] != l_Undef)
 		printf("%s%s%d", (i==0)?"":" ", (msolver.model[i]==l_True)?"":"-", i+1);

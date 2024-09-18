@@ -215,11 +215,28 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               // Determine if the rule is disjunctive
               int isDisjunctive = strcmp(rule[1], "0") == 0;
               if (!isDisjunctive) {
-                  fprintf(stderr, "ERROR!\nChoice rule is not acceptable\nChange the rule in a disjunction one\n");
-                  exit(1);
-              }
+                        // Extract the single head element
+                int headElement = atoi(rule[3]);
+                int var = abs(headElement) - 1;
+                while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
 
-              // Extract head elements
+                // Create the first rule: a :- not na.
+                vec<Lit> lits1;
+                lits1.push((headElement > 0) ? mkLit(var) : ~mkLit(var));
+                int na_var = maxsat_formula->nVars();
+                maxsat_formula->newVar();
+                lits1.push(~mkLit(na_var));
+                maxsat_formula->addHardClause(lits1);
+
+                // Create the second rule: na :- not a.
+                vec<Lit> lits2;
+                lits2.push(mkLit(na_var));
+                lits2.push(~((headElement > 0) ? mkLit(var) : ~mkLit(var)));
+                maxsat_formula->addHardClause(lits2);
+
+                printf("Converted choice rule {%d} into two rules using Clark's completion\n", headElement);
+              
+              }else{// Extract head elements
               int numHeadElements = atoi(rule[2]);
               char **headElements = &rule[3];
               printf("Extracted head elements\n");
@@ -266,7 +283,7 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
                   }
                   printf("\n");
               }
-              printf("\n");
+              printf("\n");}
               
           }
             else if (rule_size > 0 && strcmp(rule[0], "2") == 0) {
@@ -276,7 +293,6 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
             // Parse the number of literals (n) in the rule
             int numLiterals = atoi(rule[2]);
 
-            // Extract literals and their weights
             vec<Lit> minimizeLits;
             int index = 3;
             for (int i = 0; i < numLiterals; i++) {
@@ -286,16 +302,16 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
                 uint64_t weight = strtoull(rule[index + 1], NULL, 10); // Extract weight
                 maxsat_formula->addSoftClause(weight, minimizeLits); // Add as soft clause with weight
                 index += 2; // Move to the next literal
-            printf("Added minimize statement as soft clauses with specific weights: %lu\n",weight);}
-
-            
+                printf("Added minimize statement as soft clauses with specific weights: %lu\n",weight);
+                }            
         }
           // Free memory
           for (int i = 0; i < rule_size; i++) {
               free(rule[i]);
           }
+          }
     }
-    }
+    
 
 
     // Set problem type based on parsed data
@@ -303,10 +319,7 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
         maxsat_formula->setProblemType(_UNWEIGHTED_);
     else
         maxsat_formula->setProblemType(_WEIGHTED_);
-    printf("Number of hard clauses: %d\n", maxsat_formula->nHard());
-    printf("Number of soft clauses: %d\n",maxsat_formula->nSoft());
-    printf("Problem type: %d\n", maxsat_formula->getProblemType());
-    printf("Parsing complete.\nNot exit anymore\n");
+    printf("Parsing complete.\n");
     
 }
   
