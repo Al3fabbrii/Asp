@@ -101,6 +101,7 @@ public:
 };
 
 class MaxSATFormula {
+
   /*! This class contains the MaxSAT formula and methods for adding soft and
    * hard clauses. */
 public:
@@ -111,6 +112,8 @@ public:
     objective_function = NULL;
     format = _FORMAT_MAXSAT_;
   }
+  
+
 
   ~MaxSATFormula() {
     for (int i = 0; i < nSoft(); i++) {

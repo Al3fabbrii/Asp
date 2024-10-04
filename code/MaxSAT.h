@@ -65,6 +65,7 @@ class Encoder;
 class MaxSAT {
 
 public:
+
   MaxSAT(MaxSATFormula *mx) : oInLatestModel((uint64_t)-1) {
     maxsat_formula = mx;
 

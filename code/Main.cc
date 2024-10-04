@@ -377,11 +377,7 @@ int main(int argc, char **argv) {
     signal(SIGXCPU, SIGINT_exit);
     signal(SIGTERM, SIGINT_exit);
 
-    if (argc == 1) {
-      printf("c Error: no filename.\n");
-      printf("s UNKNOWN\n");
-      exit(_ERROR_);
-    }
+    
 
     gzFile in = (argc == 1) ? gzdopen(0, "rb") : gzopen(argv[1], "rb");
     if (in == NULL)

@@ -31,17 +31,21 @@
 #define ParserMaxSAT_h
 
 #include <stdio.h>
+#include <map>
+#include <string>
 
 #include "MaxSATFormula.h"
 #include "core/SolverTypes.h"
 #include "utils/ParseUtils.h"
 
+
 using NSPACE::mkLit;
 using NSPACE::StreamBuffer;
 
+std::map<int,std::string> aspifShow;
 namespace openwbo
 {
-
+  
   //=================================================================================================
   // DIMACS Parser:
   
@@ -156,6 +160,8 @@ namespace openwbo
                                  MaxSATFormula *maxsat_formula)
   {
     StreamBuffer in(input_stream);
+    StreamBuffer read(input_stream);
+
     parseASPifFormula(in,maxsat_formula);
     //parseMaxSAT(in, maxsat_formula);
     if (maxsat_formula->getMaximumWeight() == 1)
@@ -173,7 +179,6 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
 
     char *rule[100];
     int rule_size = 0;
-
     for(;;) {
         skipWhitespace(in);
         
@@ -215,29 +220,39 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               // Determine if the rule is disjunctive
               int isDisjunctive = strcmp(rule[1], "0") == 0;
               if (!isDisjunctive) {
-                        // Extract the single head element
-                int headElement = atoi(rule[3]);
-                int var = abs(headElement) - 1;
-                while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
+               // Extract the single head element
+        int headElement = atoi(rule[3]);
+        int var = abs(headElement) - 1;
+        while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
 
-                // Create the first rule: a :- not na.
-                vec<Lit> lits1;
-                lits1.push((headElement > 0) ? mkLit(var) : ~mkLit(var));
-                int na_var = maxsat_formula->nVars();
-                maxsat_formula->newVar();
-                lits1.push(~mkLit(na_var));
-                maxsat_formula->addHardClause(lits1);
+        // Create the first rule: a :- not na.
+        vec<Lit> lits1;
+        lits1.push((headElement > 0) ? mkLit(var) : ~mkLit(var));
+        int na_var = maxsat_formula->nVars();
+        maxsat_formula->newVar();
+        lits1.push(~mkLit(na_var));
 
-                // Create the second rule: na :- not a.
-                vec<Lit> lits2;
-                lits2.push(mkLit(na_var));
-                lits2.push(~((headElement > 0) ? mkLit(var) : ~mkLit(var)));
-                maxsat_formula->addHardClause(lits2);
+        // Create the second rule: na :- not a.
+        vec<Lit> lits2;
+        lits2.push(mkLit(na_var));
+        lits2.push(~((headElement > 0) ? mkLit(var) : ~mkLit(var)));
 
-                printf("Converted choice rule {%d} into two rules using Clark's completion\n", headElement);
-              
-              }else{// Extract head elements
-              int numHeadElements = atoi(rule[2]);
+        // Check if there is a body
+        if (rule_size > 5) {
+            // Process and add the body elements to both rules
+            for (int i = 6; i < rule_size; i++) {
+                int bodyElement = atoi(rule[i]);
+                int bodyVar = abs(bodyElement) - 1;
+                while (bodyVar >= maxsat_formula->nVars()) maxsat_formula->newVar();
+                lits1.push((bodyElement > 0) ? mkLit(bodyVar) : ~mkLit(bodyVar));
+                lits2.push((bodyElement > 0) ? mkLit(bodyVar) : ~mkLit(bodyVar));
+            }
+        }
+              maxsat_formula->addHardClause(lits1);
+              maxsat_formula->addHardClause(lits2);
+
+               printf("Converted choice rule {%d} into two rules using Clark's completion with body\n", headElement);
+              }else{ int numHeadElements = atoi(rule[2]);
               char **headElements = &rule[3];
               printf("Extracted head elements\n");
               
@@ -283,8 +298,7 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
                   }
                   printf("\n");
               }
-              printf("\n");}
-              
+              printf("\n");}    
           }
             else if (rule_size > 0 && strcmp(rule[0], "2") == 0) {
             // Parse the priority (p) - can be ignored
@@ -305,6 +319,17 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
                 printf("Added minimize statement as soft clauses with specific weights: %lu\n",weight);
                 }            
         }
+         else if (rule_size > 0 && strcmp(rule[0], "4") == 0) {
+                int numChars = atoi(rule[1]);
+                std::string atomName = rule[2];
+                int numLiterals = atoi(rule[3]);
+                int literalValue = atoi(rule[4]);
+                
+                // Store the atom name and its corresponding value
+                aspifShow[literalValue]=atomName;
+
+                printf("Stored output clause: %s with value %d\n", atomName.c_str(), literalValue);
+            }
           // Free memory
           for (int i = 0; i < rule_size; i++) {
               free(rule[i]);

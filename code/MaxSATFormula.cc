@@ -77,7 +77,6 @@ void MaxSATFormula::addSoftClause(uint64_t weight, vec<Lit> &lits) {
       Soft(copy_lits, weight, assump, vars);
   n_soft++;
 }
-
 // Adds a new soft clause to the hard clause database with predefined relaxation
 // variables.
 void MaxSATFormula::addSoftClause(uint64_t weight, vec<Lit> &lits,

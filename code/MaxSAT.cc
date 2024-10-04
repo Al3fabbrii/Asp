@@ -31,6 +31,8 @@
 #include "Encoder.h"
 #include "algorithms/Alg_nuwls.h"
 
+extern std::map<int,std::string> aspifShow;
+
 namespace
 {
   clauselit **nuwls_clause_lit;
@@ -1088,7 +1090,7 @@ void MaxSAT::blockModel(Solver *solver)
 
   solver->addClause(blocking);
 }
-
+using namespace openwbo;
 // Prints the best satisfying model. Assumes that 'model' is not empty.
 void MaxSAT::printModel()
 {
@@ -1125,13 +1127,18 @@ void MaxSAT::printModel()
   }
   else
   {
-
     // It's sufficient to print out the model for the initial variables only
-    for (int i = 0; i < maxsat_formula->nInitialVars(); i++)
+    for (int i = 0; i <aspifShow.size(); i++)
     {
       mdl[i] = model[i] == l_True ? '1' : '0';
+      if(model[i]==l_True){
+        if(aspifShow[i]!=""){
+          printf("Il letterale %s è vero\n",aspifShow[i].c_str());
+        }
+        
+      }
+      
     }
-    printf("v %s\n", mdl.c_str());
   }
   fflush(stdout);
 }

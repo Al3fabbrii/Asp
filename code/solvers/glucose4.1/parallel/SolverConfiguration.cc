@@ -58,7 +58,7 @@ using namespace Glucose;
 void SolverConfiguration::configure(MultiSolvers *ms, int nbsolvers) {
     for(int i = 1;i<nbsolvers;i++) { // Configuration for the sat race 2015
         ms->solvers[i]->randomizeFirstDescent = true;
-        ms->solvers[i]->adaptStrategies = (i%2==0); // Just half of the cores are in adaptive mode
+        //ms->solvers[i]->adaptStrategies = (i%2==0); // Just half of the cores are in adaptive mode
         ms->solvers[i]->forceUnsatOnNewDescent = (i%4==0); // Just half of adaptive cores have the unsat force
     }
     if (nbsolvers > 8) { // configuration for the second phase of the sat race 2015
@@ -74,7 +74,7 @@ void SolverConfiguration::configure(MultiSolvers *ms, int nbsolvers) {
 void SolverConfiguration::configureSAT15Adapt(MultiSolvers *ms, int nbsolvers) {
     for(int i = 1;i<nbsolvers;i++) { // Configuration for the sat race 2015
         ms->solvers[i]->randomizeFirstDescent = true;
-        ms->solvers[i]->adaptStrategies = (i%2==0); // Just half of the cores are in adaptive mode
+       // ms->solvers[i]->adaptStrategies = (i%2==0); // Just half of the cores are in adaptive mode
     }
     if (nbsolvers > 8) { // configuration for the second phase of the sat race 2015
         for(int i=0;i<nbsolvers;i++) { // we have like 32 threads, so we need to export just very good clauses
