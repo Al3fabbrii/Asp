@@ -251,20 +251,22 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               maxsat_formula->addHardClause(lits1);
               maxsat_formula->addHardClause(lits2);
 
-               printf("Converted choice rule {%d} into two rules using Clark's completion with body\n", headElement);
               }else{ int numHeadElements = atoi(rule[2]);
+              int index = 3 + numHeadElements + 1;
+              int numBodyElements = atoi(rule[index]);
               char **headElements = &rule[3];
-              printf("Extracted head elements\n");
               
 
               // Extract body elements
-              int index = 3 + numHeadElements + 1;
-              int numBodyElements = atoi(rule[index]);
+              
               char **bodyElements = &rule[index + 1];
-              printf("Extracted body elements\n");
+             
+              if(numHeadElements==0 && numBodyElements==0){printf("UNSATISFIABLE\n");exit(1);}
+              //if(numHeadElements==0){continue;}
 
               // Convert head and body elements to literals
                 vec<Lit> lits;
+                
                 for (int i = 0; i < numHeadElements; i++) {
                     int var = abs(atoi(headElements[i])) - 1;
                     while (var >= maxsat_formula->nVars()) maxsat_formula->newVar();
@@ -278,13 +280,11 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
 
                 // Add the disjunction rule as a hard clause
                 maxsat_formula->addHardClause(lits);
-                printf("Added disjunction rule as a hard clause\n");
                 
               
 
               // Debugging output (optional)
-              printf("Rule type: disjunction\n");
-              printf("Head: ");
+             
               for (int i = 0; i < numHeadElements; i++) {
                   printf("%s ", headElements[i]);
               }
@@ -292,7 +292,6 @@ static void parseASPifFormula(B &in, MaxSATFormula *maxsat_formula) {
               
 
               if (numBodyElements > 0) {
-                  printf("Body: ");
                   for (int i = 0; i < numBodyElements; i++) {
                       printf("%s ", bodyElements[i]);
                   }

@@ -1128,17 +1128,17 @@ void MaxSAT::printModel()
   else
   {
     // It's sufficient to print out the model for the initial variables only
-    for (int i = 0; i <aspifShow.size(); i++)
+    for (int i = 0; i <maxsat_formula->nInitialVars(); i++)
     {
       mdl[i] = model[i] == l_True ? '1' : '0';
-      if(model[i]==l_True){
-        if(aspifShow[i]!=""){
-          printf("Il letterale %s è vero\n",aspifShow[i].c_str());
-        }
-        
-      }
       
     }
+    for(int i=0;i<maxsat_formula->nInitialVars();i++){
+      if(mdl[i]=='1'){
+          printf("%s ",aspifShow[i+1].c_str());
+      }
+    }
+    printf("%s\n",mdl.c_str());
   }
   fflush(stdout);
 }

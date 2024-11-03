@@ -1010,6 +1010,7 @@ void LinearSUClustering::bmoSearch()
         nuwls_solver.free_memory();
         cout << "c nuwls search done!" << endl;
         cout << "c step " << step << " get_runtime " << get_runtime() << " time_limit_for_ls" << time_limit_for_ls << endl;
+        
       }
     }
 
@@ -1051,6 +1052,7 @@ void LinearSUClustering::bmoSearch()
         }
 
         if (newCost < rhs[current_function_id])
+          printf("newCost<rhs\n");
           rhs[current_function_id] = newCost;
 
         if (newCost == 0)
@@ -1391,11 +1393,13 @@ void LinearSUClustering::bmoSearch()
           }
         }
         else
-        {
-          // printf("c creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id]);
+        { for(int k=0;k<rhs.size();k++){
+          printf("%d",rhs[k]);
+        }
+          printf("\nc creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id+1]);
           if (functions[current_function_id].size() != rhs[current_function_id])
           {
-            encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], rhs[current_function_id]);
+            encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], rhs[current_function_id+1]);
             if (encoders[current_function_id]->hasCardEncoding())
             {
               encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], rhs[current_function_id], encodingAssumptions);
